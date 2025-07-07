@@ -33,6 +33,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (userNo: string, password: string) => {
     try {
+      console.log('Attempting login with:', { userNo, password });
+      
       const { data, error } = await supabase
         .from('m_user')
         .select('*')
@@ -40,7 +42,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .eq('user_pass', password)
         .single();
 
+      console.log('Supabase response:', { data, error });
+
       if (error || !data) {
+        console.error('Login error:', error);
         return { success: false, error: 'Sai tên đăng nhập hoặc mật khẩu' };
       }
 
@@ -51,6 +56,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user_group: data.user_group
       };
 
+      console.log('User logged in successfully:', userData);
       setUser(userData);
       localStorage.setItem('authenticated_user', JSON.stringify(userData));
       
