@@ -29,7 +29,7 @@ const Index = () => {
         name: "Lop1",
         videos: [
           { name: "video1.mp4", path: "D:/videos/Lop1/video1.mp4" },
-          { name: "video2.mp4", path: "/videos/Lop1/video2.mp4" },
+          { name: "video2.mp4", path: "http://localhost:3000/videos/Lop1/video1.mp4" },
           { name: "video3.mp4", path: "https://youtu.be/DcP2o9jy-yc" },
           { name: "Tiền tệ và Lạm Phát", path: "https://www.youtube.com/watch?v=Hft-e1AcddU" }
         ]
