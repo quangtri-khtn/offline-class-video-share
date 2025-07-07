@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -48,10 +47,18 @@ const Index = () => {
     ];
 
     // Lọc các lớp theo quyền của user
-    if (user && user.user_group) {
-      const userClassName = `Lop${user.user_group}`;
-      const filteredClasses = mockData.filter(cls => cls.name === userClassName);
-      setClasses(filteredClasses);
+    if (user) {
+      // User group 0 có thể thấy tất cả lớp học
+      if (user.user_group === 0) {
+        setClasses(mockData);
+      } else if (user.user_group) {
+        // User khác chỉ thấy lớp của mình
+        const userClassName = `Lop${user.user_group}`;
+        const filteredClasses = mockData.filter(cls => cls.name === userClassName);
+        setClasses(filteredClasses);
+      } else {
+        setClasses([]);
+      }
     } else {
       setClasses(mockData);
     }
@@ -116,8 +123,10 @@ const Index = () => {
               Hệ thống Video Học tập
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              {user && user.user_group 
-                ? `Chào mừng ${user.user_name || user.user_no} - Lớp ${user.user_group}`
+              {user && user.user_group !== null
+                ? user.user_group === 0 
+                  ? `Chào mừng ${user.user_name || user.user_no} - Quản trị viên (Xem tất cả lớp)`
+                  : `Chào mừng ${user.user_name || user.user_no} - Lớp ${user.user_group}`
                 : "Chọn lớp học để xem các video bài giảng được lưu trữ cục bộ"
               }
             </p>
