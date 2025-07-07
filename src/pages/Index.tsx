@@ -30,7 +30,7 @@ const Index = () => {
         videos: [
           { name: "video1.mp4", path: "/videos/Lop1/video1.mp4" },
           { name: "video2.mp4", path: "/videos/Lop1/video2.mp4" },
-          { name: "video3.mp4", path: "https://youtu.be/DcP2o9jy-yc" },
+          { name: "video3.mp4", path: "https://youtu.be/DcP2o9jy-yc" }
         ]
       },
       {
