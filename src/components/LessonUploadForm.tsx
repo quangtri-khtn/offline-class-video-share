@@ -57,6 +57,19 @@ export const LessonUploadForm = ({ onSuccess, onCancel, teacherId, classGroup }:
     setSelectedFile(file);
   };
 
+  // Hàm tạo tên file an toàn
+  const createSafeFileName = (originalName: string): string => {
+    // Loại bỏ ký tự đặc biệt và thay thế bằng underscore
+    const safeName = originalName
+      .normalize('NFD') // Chuẩn hóa Unicode
+      .replace(/[\u0300-\u036f]/g, '') // Loại bỏ dấu
+      .replace(/[^a-zA-Z0-9._-]/g, '_') // Thay thế ký tự đặc biệt bằng _
+      .replace(/_+/g, '_') // Gộp nhiều _ thành 1
+      .replace(/^_|_$/g, ''); // Loại bỏ _ ở đầu và cuối
+    
+    return safeName;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -81,35 +94,55 @@ export const LessonUploadForm = ({ onSuccess, onCancel, teacherId, classGroup }:
     setLoading(true);
 
     try {
-      // Tạo tên file unique
-      const fileExtension = selectedFile.name.split('.').pop();
-      const fileName = `${Date.now()}_${selectedFile.name}`;
+      console.log('Starting upload process...');
+      console.log('Original file name:', selectedFile.name);
+      console.log('File size:', selectedFile.size);
+      console.log('File type:', selectedFile.type);
+      console.log('Teacher ID:', teacherId);
+      console.log('Class group:', classGroup);
+
+      // Tạo tên file an toàn
+      const safeFileName = createSafeFileName(selectedFile.name);
+      const fileName = `${Date.now()}_${safeFileName}`;
       const filePath = `class_${classGroup}/${fileName}`;
 
+      console.log('Safe file name:', safeFileName);
+      console.log('Final file name:', fileName);
+      console.log('File path:', filePath);
+
       // Upload file lên Supabase Storage
-      const { error: uploadError } = await supabase.storage
+      console.log('Uploading to storage...');
+      const { error: uploadError, data: uploadData } = await supabase.storage
         .from('lesson-files')
-        .upload(filePath, selectedFile);
+        .upload(filePath, selectedFile, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
       if (uploadError) {
+        console.error('Storage upload error:', uploadError);
         throw uploadError;
       }
 
+      console.log('Upload successful:', uploadData);
+
       // Lưu thông tin vào database
-      const { error: dbError } = await supabase
+      console.log('Saving to database...');
+      const { error: dbError, data: dbData } = await supabase
         .from('lesson_results')
         .insert({
           teacher_id: teacherId,
           class_group: classGroup,
           lesson_title: formData.title.trim(),
           lesson_description: formData.description.trim() || null,
-          file_name: selectedFile.name,
+          file_name: selectedFile.name, // Giữ tên gốc để hiển thị
           file_path: filePath,
           file_size: selectedFile.size,
           file_type: selectedFile.type,
         });
 
       if (dbError) {
+        console.error('Database insert error:', dbError);
         // Nếu lưu DB thất bại, xóa file đã upload
         await supabase.storage
           .from('lesson-files')
@@ -117,12 +150,31 @@ export const LessonUploadForm = ({ onSuccess, onCancel, teacherId, classGroup }:
         throw dbError;
       }
 
+      console.log('Database insert successful:', dbData);
+      
+      toast({
+        title: "Thành công",
+        description: "Bài học đã được upload thành công",
+      });
+
       onSuccess();
     } catch (error) {
       console.error('Error uploading lesson:', error);
+      
+      let errorMessage = "Không thể upload bài học. Vui lòng thử lại.";
+      
+      if (error && typeof error === 'object') {
+        if ('message' in error) {
+          errorMessage += ` Chi tiết: ${error.message}`;
+        }
+        if ('error' in error) {
+          errorMessage += ` Lỗi: ${error.error}`;
+        }
+      }
+      
       toast({
         title: "Lỗi",
-        description: "Không thể upload bài học. Vui lòng thử lại." + error,
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

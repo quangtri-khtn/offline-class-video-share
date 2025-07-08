@@ -64,10 +64,56 @@ export type Database = {
           },
         ]
       }
+      m_company: {
+        Row: {
+          address: string | null
+          comp_code: string | null
+          comp_name: string | null
+          created_at: string
+          email: string | null
+          foreign_name: string | null
+          id: number
+          modified_at: string | null
+          phone: string | null
+          shortname: string | null
+          status: string | null
+          taxcode: string | null
+        }
+        Insert: {
+          address?: string | null
+          comp_code?: string | null
+          comp_name?: string | null
+          created_at?: string
+          email?: string | null
+          foreign_name?: string | null
+          id?: number
+          modified_at?: string | null
+          phone?: string | null
+          shortname?: string | null
+          status?: string | null
+          taxcode?: string | null
+        }
+        Update: {
+          address?: string | null
+          comp_code?: string | null
+          comp_name?: string | null
+          created_at?: string
+          email?: string | null
+          foreign_name?: string | null
+          id?: number
+          modified_at?: string | null
+          phone?: string | null
+          shortname?: string | null
+          status?: string | null
+          taxcode?: string | null
+        }
+        Relationships: []
+      }
       m_user: {
         Row: {
           created_at: string
           id: number
+          status: string | null
           user_group: number | null
           user_name: string | null
           user_no: string | null
@@ -76,6 +122,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: number
+          status?: string | null
           user_group?: number | null
           user_name?: string | null
           user_no?: string | null
@@ -84,12 +131,52 @@ export type Database = {
         Update: {
           created_at?: string
           id?: number
+          status?: string | null
           user_group?: number | null
           user_name?: string | null
           user_no?: string | null
           user_pass?: string | null
         }
         Relationships: []
+      }
+      m_usercompany: {
+        Row: {
+          compid: number | null
+          created_at: string
+          id: number
+          status: string | null
+          userid: number | null
+        }
+        Insert: {
+          compid?: number | null
+          created_at?: string
+          id?: number
+          status?: string | null
+          userid?: number | null
+        }
+        Update: {
+          compid?: number | null
+          created_at?: string
+          id?: number
+          status?: string | null
+          userid?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "m_usercompany_compid_fkey"
+            columns: ["compid"]
+            isOneToOne: false
+            referencedRelation: "m_company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "m_usercompany_userid_fkey"
+            columns: ["userid"]
+            isOneToOne: false
+            referencedRelation: "m_user"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
