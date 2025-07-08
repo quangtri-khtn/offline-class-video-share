@@ -1,11 +1,13 @@
 
 import { Button } from '@/components/ui/button';
-import { LogOut, User, BookOpen } from 'lucide-react';
+import { LogOut, User, BookOpen, Shield } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserRole } from '@/hooks/useUserRole';
 import { useNavigate } from 'react-router-dom';
 
 export const UserHeader = () => {
   const { user, logout } = useAuth();
+  const { isAdmin, isTeacher } = useUserRole();
   const navigate = useNavigate();
 
   if (!user) return null;
@@ -20,6 +22,10 @@ export const UserHeader = () => {
 
   const handleTeacherDashboard = () => {
     navigate('/teacher');
+  };
+
+  const handleAdminDashboard = () => {
+    navigate('/admin');
   };
 
   return (
@@ -39,7 +45,18 @@ export const UserHeader = () => {
           </div>
         </div>
         <div className="flex items-center space-x-3">
-          {user.user_group !== 0 && (
+          {isAdmin && (
+            <Button 
+              onClick={handleAdminDashboard}
+              variant="outline"
+              size="sm"
+              className="flex items-center space-x-2"
+            >
+              <Shield className="w-4 h-4" />
+              <span>Quản lý Admin</span>
+            </Button>
+          )}
+          {(isTeacher || isAdmin) && (
             <Button 
               onClick={handleTeacherDashboard}
               variant="outline"

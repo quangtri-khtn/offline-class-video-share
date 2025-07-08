@@ -113,6 +113,7 @@ export type Database = {
         Row: {
           created_at: string
           id: number
+          role: string | null
           status: string | null
           user_group: number | null
           user_name: string | null
@@ -122,6 +123,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: number
+          role?: string | null
           status?: string | null
           user_group?: number | null
           user_name?: string | null
@@ -131,6 +133,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: number
+          role?: string | null
           status?: string | null
           user_group?: number | null
           user_name?: string | null
