@@ -122,7 +122,7 @@ export const LessonUploadForm = ({ onSuccess, onCancel, teacherId, classGroup }:
       console.error('Error uploading lesson:', error);
       toast({
         title: "Lỗi",
-        description: "Không thể upload bài học. Vui lòng thử lại." + error,
+        description: "Không thể upload bài học. Vui lòng thử lại.",
         variant: "destructive",
       });
     } finally {
