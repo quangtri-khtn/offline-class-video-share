@@ -1,18 +1,25 @@
 
 import { Button } from '@/components/ui/button';
-import { LogOut, User } from 'lucide-react';
+import { LogOut, User, BookOpen } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 export const UserHeader = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   if (!user) return null;
 
   const getClassName = (userGroup: number | null) => {
+    if (userGroup === 0) return 'Quản trị viên';
     if (userGroup === 1) return 'Lop1';
     if (userGroup === 2) return 'Lop2';
     if (userGroup === 3) return 'Lop3';
     return 'Chưa phân lớp';
+  };
+
+  const handleTeacherDashboard = () => {
+    navigate('/teacher');
   };
 
   return (
@@ -31,15 +38,28 @@ export const UserHeader = () => {
             </p>
           </div>
         </div>
-        <Button 
-          onClick={logout}
-          variant="outline"
-          size="sm"
-          className="flex items-center space-x-2"
-        >
-          <LogOut className="w-4 h-4" />
-          <span>Đăng xuất</span>
-        </Button>
+        <div className="flex items-center space-x-3">
+          {user.user_group !== 0 && (
+            <Button 
+              onClick={handleTeacherDashboard}
+              variant="outline"
+              size="sm"
+              className="flex items-center space-x-2"
+            >
+              <BookOpen className="w-4 h-4" />
+              <span>Quản lý Bài học</span>
+            </Button>
+          )}
+          <Button 
+            onClick={logout}
+            variant="outline"
+            size="sm"
+            className="flex items-center space-x-2"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Đăng xuất</span>
+          </Button>
+        </div>
       </div>
     </div>
   );
