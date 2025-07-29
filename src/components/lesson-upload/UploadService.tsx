@@ -1,5 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import { validateFileUpload, sanitizeInput } from "@/components/input-validation/ValidationUtils";
 
 export const createSafeFileName = (originalName: string): string => {
   // Loại bỏ ký tự đặc biệt và thay thế bằng underscore
@@ -20,24 +21,25 @@ export const uploadLessonFile = async (
   title: string,
   description: string
 ) => {
-  console.log('Starting upload process...');
-  console.log('Original file name:', file.name);
-  console.log('File size:', file.size);
-  console.log('File type:', file.type);
-  console.log('Teacher ID:', teacherId);
-  console.log('Class group:', classGroup);
+  // Validate inputs
+  const validation = validateFileUpload(file);
+  if (!validation.valid) {
+    throw new Error(validation.error);
+  }
+
+  const sanitizedTitle = sanitizeInput(title);
+  const sanitizedDescription = sanitizeInput(description);
+
+  if (!sanitizedTitle) {
+    throw new Error('Tiêu đề không được để trống');
+  }
 
   // Tạo tên file an toàn
   const safeFileName = createSafeFileName(file.name);
   const fileName = `${Date.now()}_${safeFileName}`;
   const filePath = `class_${classGroup}/${fileName}`;
 
-  console.log('Safe file name:', safeFileName);
-  console.log('Final file name:', fileName);
-  console.log('File path:', filePath);
-
   // Upload file lên Supabase Storage
-  console.log('Uploading to storage...');
   const { error: uploadError, data: uploadData } = await supabase.storage
     .from('lesson-files')
     .upload(filePath, file, {
@@ -46,21 +48,17 @@ export const uploadLessonFile = async (
     });
 
   if (uploadError) {
-    console.error('Storage upload error:', uploadError);
     throw uploadError;
   }
 
-  console.log('Upload successful:', uploadData);
-
   // Lưu thông tin vào database
-  console.log('Saving to database...');
   const { error: dbError, data: dbData } = await supabase
     .from('lesson_results')
     .insert({
       teacher_id: teacherId,
       class_group: classGroup,
-      lesson_title: title.trim(),
-      lesson_description: description.trim() || null,
+      lesson_title: sanitizedTitle,
+      lesson_description: sanitizedDescription || null,
       file_name: file.name, // Giữ tên gốc để hiển thị
       file_path: filePath,
       file_size: file.size,
@@ -68,7 +66,6 @@ export const uploadLessonFile = async (
     });
 
   if (dbError) {
-    console.error('Database insert error:', dbError);
     // Nếu lưu DB thất bại, xóa file đã upload
     await supabase.storage
       .from('lesson-files')
@@ -76,6 +73,5 @@ export const uploadLessonFile = async (
     throw dbError;
   }
 
-  console.log('Database insert successful:', dbData);
   return { uploadData, dbData };
 };

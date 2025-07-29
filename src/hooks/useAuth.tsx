@@ -33,7 +33,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (userNo: string, password: string) => {
     try {
-      console.log('Attempting login with:', { userNo, password });
+      // SECURITY WARNING: This is the old insecure authentication
+      // This should be migrated to proper Supabase Auth
       
       const { data, error } = await supabase
         .from('m_user')
@@ -42,10 +43,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .eq('user_pass', password)
         .single();
 
-      console.log('Supabase response:', { data, error });
-
       if (error || !data) {
-        console.error('Login error:', error);
         return { success: false, error: 'Sai tên đăng nhập hoặc mật khẩu' };
       }
 
@@ -56,13 +54,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user_group: data.user_group
       };
 
-      console.log('User logged in successfully:', userData);
+      
       setUser(userData);
       localStorage.setItem('authenticated_user', JSON.stringify(userData));
       
       return { success: true };
     } catch (error) {
-      console.error('Login error:', error);
       return { success: false, error: 'Có lỗi xảy ra khi đăng nhập' };
     }
   };

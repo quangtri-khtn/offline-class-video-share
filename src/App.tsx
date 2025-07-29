@@ -1,5 +1,5 @@
 
-import { Toaster } from "@/components/ui/toaster";
+import Auth from "./pages/Auth";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { LoginForm } from "@/components/LoginForm";
 import Index from "./pages/Index";
 import TeacherDashboard from "./pages/TeacherDashboard";
+import { Toaster } from "@/components/ui/toaster";
 import AdminDashboard from "./pages/AdminDashboard";
 import LessonViewer from "./pages/LessonViewer";
 import NotFound from "./pages/NotFound";
@@ -35,11 +36,12 @@ const AppContent = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/teacher" element={<TeacherDashboard />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/lesson/:id" element={<LessonViewer />} />
-        <Route path="*" element={<NotFound />} />
+            <Route path="/" element={<Index />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/teacher" element={<TeacherDashboard />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/lesson/:id" element={<LessonViewer />} />
+            <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );
