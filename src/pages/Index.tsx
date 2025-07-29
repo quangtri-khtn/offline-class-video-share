@@ -27,9 +27,9 @@ const Index = () => {
   useEffect(() => {
     const fetchVideoData = async () => {
       try {
-        // Fetch video data from lesson table
+        // Fetch video data from lesson_results table
         const { data: lessons, error } = await supabase
-          .from('m_lesson')
+          .from('lesson_results')
           .select('*')
           .order('class_group');
 
