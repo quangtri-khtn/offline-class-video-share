@@ -6,6 +6,7 @@ import { ClassList } from "@/components/ClassList";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import { UserHeader } from "@/components/UserHeader";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 interface VideoFile {
   name: string;
@@ -24,46 +25,70 @@ const Index = () => {
   const [classes, setClasses] = useState<ClassData[]>([]);
 
   useEffect(() => {
-    const mockData: ClassData[] = [
-      {
-        name: "Lop1",
-        videos: [
-          { name: "video1.mp4", path: "D:/videos/Lop1/video1.mp4" },
-          { name: "video2.mp4", path: "http://localhost:3000/videos/Lop1/video1.mp4" },
-          { name: "video3.mp4", path: "https://youtu.be/DcP2o9jy-yc" },
-          { name: "Tiền tệ và Lạm Phát", path: "https://www.youtube.com/watch?v=Hft-e1AcddU" }
-        ]
-      },
-      {
-        name: "Lop2",
-        videos: [
-          { name: "video1.mp4", path: "/videos/Lop2/video1.mp4" }
-        ]
-      },
-      {
-        name: "Lop3",
-        videos: [
-          { name: "video1.mp4", path: "/videos/Lop3/video1.mp4" }
-        ]
-      }
-    ];
+    const fetchVideoData = async () => {
+      try {
+        // Fetch video data from lesson_results table
+        const { data: lessons, error } = await supabase
+          .from('lesson_results')
+          .select('*')
+          .order('class_group');
 
-    // Lọc các lớp theo quyền của user
-    if (user) {
-      // User group 0 có thể thấy tất cả lớp học
-      if (user.user_group === 0) {
-        setClasses(mockData);
-      } else if (user.user_group) {
-        // User khác chỉ thấy lớp của mình
-        const userClassName = `Lop${user.user_group}`;
-        const filteredClasses = mockData.filter(cls => cls.name === userClassName);
-        setClasses(filteredClasses);
-      } else {
+        if (error) {
+          console.error('Error fetching lessons:', error);
+          setClasses([]);
+          return;
+        }
+
+        if (!lessons || lessons.length === 0) {
+          setClasses([]);
+          return;
+        }
+
+        // Group lessons by class_group
+        const groupedLessons: { [key: string]: VideoFile[] } = {};
+        
+        lessons.forEach(lesson => {
+          if (lesson.class_group && lesson.file_path && lesson.lesson_title) {
+            const classKey = lesson.class_group.toString();
+            if (!groupedLessons[classKey]) {
+              groupedLessons[classKey] = [];
+            }
+            groupedLessons[classKey].push({
+              name: lesson.lesson_title,
+              path: lesson.file_path
+            });
+          }
+        });
+
+        // Convert to ClassData format
+        const classesData: ClassData[] = Object.keys(groupedLessons).map(classGroup => ({
+          name: `Lop${classGroup}`,
+          videos: groupedLessons[classGroup]
+        }));
+
+        // Filter classes based on user permissions
+        if (user) {
+          if (user.user_group === 0) {
+            // Admin can see all classes
+            setClasses(classesData);
+          } else if (user.user_group) {
+            // User can only see their own class
+            const userClassName = `Lop${user.user_group}`;
+            const filteredClasses = classesData.filter(cls => cls.name === userClassName);
+            setClasses(filteredClasses);
+          } else {
+            setClasses([]);
+          }
+        } else {
+          setClasses(classesData);
+        }
+      } catch (error) {
+        console.error('Error in fetchVideoData:', error);
         setClasses([]);
       }
-    } else {
-      setClasses(mockData);
-    }
+    };
+
+    fetchVideoData();
   }, [user]);
 
   const handleClassSelect = (className: string) => {
