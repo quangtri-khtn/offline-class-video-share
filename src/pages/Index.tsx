@@ -27,9 +27,9 @@ const Index = () => {
   useEffect(() => {
     const fetchVideoData = async () => {
       try {
-        // Fetch video data from lesson_results table
+        // Fetch video data from lesson table
         const { data: lessons, error } = await supabase
-          .from('lesson_results')
+          .from('m_lesson')
           .select('*')
           .order('class_group');
 
@@ -48,13 +48,13 @@ const Index = () => {
         const groupedLessons: { [key: string]: VideoFile[] } = {};
         
         lessons.forEach(lesson => {
-          if (lesson.class_group && lesson.file_path && lesson.lesson_title) {
+          if (lesson.class_group && lesson.file_path && lesson.file_name) {
             const classKey = lesson.class_group.toString();
             if (!groupedLessons[classKey]) {
               groupedLessons[classKey] = [];
             }
             groupedLessons[classKey].push({
-              name: lesson.lesson_title,
+              name: lesson.file_name,
               path: lesson.file_path
             });
           }
