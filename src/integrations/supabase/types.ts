@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_log: {
+        Row: {
+          action: string
+          id: string
+          ip_address: unknown | null
+          new_values: Json | null
+          old_values: Json | null
+          record_id: string | null
+          table_name: string
+          timestamp: string | null
+          user_agent: string | null
+          user_id: number | null
+        }
+        Insert: {
+          action: string
+          id?: string
+          ip_address?: unknown | null
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string | null
+          table_name: string
+          timestamp?: string | null
+          user_agent?: string | null
+          user_id?: number | null
+        }
+        Update: {
+          action?: string
+          id?: string
+          ip_address?: unknown | null
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string | null
+          table_name?: string
+          timestamp?: string | null
+          user_agent?: string | null
+          user_id?: number | null
+        }
+        Relationships: []
+      }
       lesson_results: {
         Row: {
           class_group: number
@@ -109,6 +148,36 @@ export type Database = {
         }
         Relationships: []
       }
+      m_lesson: {
+        Row: {
+          class_group: string | null
+          created_at: string
+          file_name: string | null
+          file_path: string | null
+          id: number
+          lesson_name: string | null
+          lesson_no: string | null
+        }
+        Insert: {
+          class_group?: string | null
+          created_at?: string
+          file_name?: string | null
+          file_path?: string | null
+          id?: number
+          lesson_name?: string | null
+          lesson_no?: string | null
+        }
+        Update: {
+          class_group?: string | null
+          created_at?: string
+          file_name?: string | null
+          file_path?: string | null
+          id?: number
+          lesson_name?: string | null
+          lesson_no?: string | null
+        }
+        Relationships: []
+      }
       m_user: {
         Row: {
           created_at: string
@@ -142,8 +211,9 @@ export type Database = {
         }
         Relationships: []
       }
-      m_usercompany: {
+      m_user_role: {
         Row: {
+          class_group: string | null
           compid: number | null
           created_at: string
           id: number
@@ -151,6 +221,7 @@ export type Database = {
           userid: number | null
         }
         Insert: {
+          class_group?: string | null
           compid?: number | null
           created_at?: string
           id?: number
@@ -158,6 +229,7 @@ export type Database = {
           userid?: number | null
         }
         Update: {
+          class_group?: string | null
           compid?: number | null
           created_at?: string
           id?: number
@@ -186,7 +258,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_current_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never
