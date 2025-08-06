@@ -1,8 +1,8 @@
 
-import { useAuth } from "@/hooks/useAuth";
+import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 
 export const useUserRole = () => {
-  const { user } = useAuth();
+  const { user } = useSupabaseAuth();
   
   const isAdmin = user?.user_group === 0;
   const isTeacher = user?.user_group === 1;

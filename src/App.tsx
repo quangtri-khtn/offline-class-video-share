@@ -4,8 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider, useAuth } from "@/hooks/useAuth";
-import { LoginForm } from "@/components/LoginForm";
+import { SupabaseAuthProvider, useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import Index from "./pages/Index";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import { Toaster } from "@/components/ui/toaster";
@@ -16,7 +15,7 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
-  const { user, loading } = useAuth();
+  const { user, loading } = useSupabaseAuth();
 
   if (loading) {
     return (
@@ -30,18 +29,17 @@ const AppContent = () => {
   }
 
   if (!user) {
-    return <LoginForm />;
+    return <Auth />;
   }
 
   return (
     <BrowserRouter>
       <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/teacher" element={<TeacherDashboard />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/lesson/:id" element={<LessonViewer />} />
-            <Route path="*" element={<NotFound />} />
+        <Route path="/" element={<Index />} />
+        <Route path="/teacher" element={<TeacherDashboard />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/lesson/:id" element={<LessonViewer />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );
@@ -52,9 +50,9 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <AuthProvider>
+      <SupabaseAuthProvider>
         <AppContent />
-      </AuthProvider>
+      </SupabaseAuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

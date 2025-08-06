@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -91,6 +90,12 @@ const AdminDashboard = () => {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+
+      // Log security event
+      await logSecurityEvent('file_download', {
+        lesson_id: lesson.id,
+        file_name: lesson.file_name
+      });
     } catch (error) {
       console.error('Error downloading file:', error);
       toast({
@@ -116,7 +121,7 @@ const AdminDashboard = () => {
     }
 
     try {
-      // Xóa file từ storage
+      // Delete file from storage
       const { error: storageError } = await supabase.storage
         .from('lesson-files')
         .remove([lesson.file_path]);
@@ -125,7 +130,7 @@ const AdminDashboard = () => {
         console.error('Error deleting file from storage:', storageError);
       }
 
-      // Xóa record từ database
+      // Delete record from database
       const { error: dbError } = await supabase
         .from('lesson_results')
         .delete()
@@ -134,6 +139,12 @@ const AdminDashboard = () => {
       if (dbError) {
         throw dbError;
       }
+
+      // Log security event
+      await logSecurityEvent('lesson_delete', {
+        lesson_id: lesson.id,
+        lesson_title: lesson.lesson_title
+      });
 
       toast({
         title: "Thành công",
@@ -148,6 +159,22 @@ const AdminDashboard = () => {
         description: "Không thể xóa bài học",
         variant: "destructive",
       });
+    }
+  };
+
+  const logSecurityEvent = async (eventType: string, eventData: any) => {
+    try {
+      await supabase
+        .from('security_events')
+        .insert({
+          user_id: user?.id,
+          event_type: eventType,
+          event_data: eventData,
+          ip_address: null, // Would need to get from request in real implementation
+          user_agent: navigator.userAgent
+        });
+    } catch (error) {
+      console.error('Error logging security event:', error);
     }
   };
 

@@ -5,7 +5,7 @@ import { ArrowRight, Video } from "lucide-react";
 import { ClassList } from "@/components/ClassList";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import { UserHeader } from "@/components/UserHeader";
-import { useAuth } from "@/hooks/useAuth";
+import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import { supabase } from "@/integrations/supabase/client";
 
 interface VideoFile {
@@ -19,13 +19,15 @@ interface ClassData {
 }
 
 const Index = () => {
-  const { user } = useAuth();
+  const { user } = useSupabaseAuth();
   const [selectedClass, setSelectedClass] = useState<string | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<VideoFile | null>(null);
   const [classes, setClasses] = useState<ClassData[]>([]);
 
   useEffect(() => {
     const fetchVideoData = async () => {
+      if (!user) return;
+
       try {
         // Fetch video data from lesson_results table
         const { data: lessons, error } = await supabase
@@ -66,22 +68,7 @@ const Index = () => {
           videos: groupedLessons[classGroup]
         }));
 
-        // Filter classes based on user permissions
-        if (user) {
-          if (user.user_group === 0) {
-            // Admin can see all classes
-            setClasses(classesData);
-          } else if (user.user_group) {
-            // User can only see their own class
-            const userClassName = `Lop${user.user_group}`;
-            const filteredClasses = classesData.filter(cls => cls.name === userClassName);
-            setClasses(filteredClasses);
-          } else {
-            setClasses([]);
-          }
-        } else {
-          setClasses(classesData);
-        }
+        setClasses(classesData);
       } catch (error) {
         console.error('Error in fetchVideoData:', error);
         setClasses([]);
