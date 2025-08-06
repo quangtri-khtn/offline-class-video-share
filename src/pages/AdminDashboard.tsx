@@ -167,7 +167,7 @@ const AdminDashboard = () => {
       await supabase
         .from('audit_log')
         .insert({
-          user_id: user?.id || null,
+          user_id: user?.id ? parseInt(user.id) : null,
           action: eventType,
           table_name: 'lesson_results',
           record_id: eventData.lesson_id || null,

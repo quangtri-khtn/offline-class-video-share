@@ -14,7 +14,7 @@ export const useSecurityMonitoring = () => {
       await supabase
         .from('audit_log')
         .insert({
-          user_id: user?.id || null,
+          user_id: user?.id ? parseInt(user.id) : null,
           action: eventType,
           table_name: 'security_events',
           record_id: null,

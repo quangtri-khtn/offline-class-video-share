@@ -66,7 +66,7 @@ const LessonViewer = () => {
         return;
       }
 
-      if (!canViewAllFiles && data.teacher_id !== user?.id) {
+      if (!canViewAllFiles && data.teacher_id !== parseInt(user?.id || '0')) {
         toast({
           title: "Không có quyền truy cập",
           description: "Bạn chỉ có thể xem bài học của chính mình",
