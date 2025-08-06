@@ -18,11 +18,13 @@ export const createSafeFileName = (originalName: string): string => {
 const logSecurityEvent = async (eventType: string, eventData: any, userId?: number) => {
   try {
     await supabase
-      .from('security_events')
+      .from('audit_log')
       .insert({
-        user_id: userId,
-        event_type: eventType,
-        event_data: eventData,
+        user_id: userId || null,
+        action: eventType,
+        table_name: 'lesson_results',
+        record_id: eventData.lesson_id || null,
+        new_values: eventData,
         user_agent: navigator.userAgent
       });
   } catch (error) {

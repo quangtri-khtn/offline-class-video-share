@@ -165,12 +165,13 @@ const AdminDashboard = () => {
   const logSecurityEvent = async (eventType: string, eventData: any) => {
     try {
       await supabase
-        .from('security_events')
+        .from('audit_log')
         .insert({
-          user_id: user?.id,
-          event_type: eventType,
-          event_data: eventData,
-          ip_address: null, // Would need to get from request in real implementation
+          user_id: user?.id || null,
+          action: eventType,
+          table_name: 'lesson_results',
+          record_id: eventData.lesson_id || null,
+          new_values: eventData,
           user_agent: navigator.userAgent
         });
     } catch (error) {

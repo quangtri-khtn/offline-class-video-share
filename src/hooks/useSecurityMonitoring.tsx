@@ -12,11 +12,13 @@ export const useSecurityMonitoring = () => {
   ) => {
     try {
       await supabase
-        .from('security_events')
+        .from('audit_log')
         .insert({
           user_id: user?.id || null,
-          event_type: eventType,
-          event_data: {
+          action: eventType,
+          table_name: 'security_events',
+          record_id: null,
+          new_values: {
             ...eventData,
             severity,
             timestamp: new Date().toISOString()
